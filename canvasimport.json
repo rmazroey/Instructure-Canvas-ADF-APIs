@@ -1,0 +1,107 @@
+{
+  "projectName": "CanvasAPIImport",
+  "description": "Azure Data Factory pipeline to import data from Canvas LMS API into Azure SQL Database.",
+  "artifacts": {
+    "pipelines": [
+      {
+        "name": "ImportCanvasDataPipeline",
+        "activities": [
+          {
+            "name": "FetchCanvasData",
+            "type": "WebActivity",
+            "linkedServiceName": {
+              "referenceName": "CanvasAPIService",
+              "type": "LinkedServiceReference"
+            },
+            "typeProperties": {
+              "url": "https://canvas.instructure.com/api/v1/courses",
+              "method": "GET",
+              "headers": {
+                "Authorization": "Bearer @linkedService().accessToken"
+              },
+              "dataset": "CoursesDataset"
+            }
+          },
+          {
+            "name": "StoreDataInSQL",
+            "type": "CopyActivity",
+            "inputs": [
+              {
+                "referenceName": "CoursesDataset",
+                "type": "DatasetReference"
+              }
+            ],
+            "outputs": [
+              {
+                "referenceName": "SQLTableDataset",
+                "type": "DatasetReference"
+              }
+            ],
+            "typeProperties": {
+              "source": {
+                "type": "JsonSource",
+                "storeSettings": {
+                  "type": "AzureBlobStorageReadSettings",
+                  "recursive": true
+                }
+              },
+              "sink": {
+                "type": "SqlSink",
+                "preCopyScript": "TRUNCATE TABLE [dbo].[CanvasCourses]"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "datasets": [
+      {
+        "name": "CoursesDataset",
+        "properties": {
+          "linkedServiceName": {
+            "referenceName": "AzureBlobStorage",
+            "type": "LinkedServiceReference"
+          },
+          "type": "Json",
+          "schema": []
+        }
+      },
+      {
+        "name": "SQLTableDataset",
+        "properties": {
+          "linkedServiceName": {
+            "referenceName": "AzureSQLDB",
+            "type": "LinkedServiceReference"
+          },
+          "type": "AzureSqlTable",
+          "schema": []
+        }
+      }
+    ],
+    "linkedServices": [
+      {
+        "name": "CanvasAPIService",
+        "type": "Web",
+        "typeProperties": {
+          "url": "https://canvas.instructure.com",
+          "authenticationType": "Anonymous",
+          "accessToken": "<Your-Access-Token>"
+        }
+      },
+      {
+        "name": "AzureBlobStorage",
+        "type": "AzureBlobStorage",
+        "typeProperties": {
+          "connectionString": "<Your-Blob-Storage-Connection-String>"
+        }
+      },
+      {
+        "name": "AzureSQLDB",
+        "type": "AzureSqlDatabase",
+        "typeProperties": {
+          "connectionString": "<Your-SQL-DB-Connection-String>"
+        }
+      }
+    ]
+  }
+}
