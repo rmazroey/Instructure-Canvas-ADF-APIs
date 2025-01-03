@@ -1,0 +1,82 @@
+{
+	"name": "ExtractCanvasAPI",
+	"properties": {
+		"activities": [
+			{
+				"name": "FetchCanavsCourseData",
+				"description": "https://canvas.instructure.com",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"headers": {
+						"Authorization": "@linkedService().accessToken"
+					},
+					"url": "https://canvas.instructure.com/api/v1/courses"
+				}
+			},
+			{
+				"name": "StoreDataSQL",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "FetchCanavsCourseData",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzurePostgreSQLSink",
+						"writeBatchSize": 1000000,
+						"writeBatchTimeout": "00:30:00",
+						"preCopyScript": "TRUNCATE TABLE [dbo].[Courses]\n",
+						"writeMethod": "CopyCommand"
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "CourseDataset",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "AzurePostgreCourse",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": []
+	}
+}

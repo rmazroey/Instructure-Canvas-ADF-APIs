@@ -1,0 +1,17 @@
+{
+	"name": "CourseDataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Canvas Courses",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation"
+			}
+		},
+		"schema": {}
+	}
+}
