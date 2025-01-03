@@ -1,0 +1,9 @@
+{
+	"name": "canvasimport",
+	"location": "eastus2",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "17461a8d-cd76-43cd-96bf-f0fca1f171fb",
+		"tenantId": "8a48b1c1-f645-499d-8179-4f902f4800b2"
+	}
+}
